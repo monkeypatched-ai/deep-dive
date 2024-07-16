@@ -40,7 +40,7 @@ Monkey mind provides a higher level of abstraction than the SDK enabling robot f
 ##### To Contribute send an email to below address
 
 Prashun Javeri, CTO Monkeypatched
-Jatin Jadhav,  Software Engineer ML/AI 
+Jatin Jadhav,  Software Engineer ML/AI
 Pooja Gandhi, Software Engineer ML/AI
 
 # Setting up 
