@@ -1,26 +1,28 @@
+""" main api for the RAG """
+# pylint: disable=line-too-long,no-member
+
 import os
 import json
-import uvicorn
 import uuid
 import socket
+import uvicorn
 import confluent_kafka
-
+from dotenv import load_dotenv
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import JSONResponse
+from llama_index.embeddings.openai import OpenAIEmbedding
 from src.db.helpers.qdrant import QdrantDB
 from src.lib.initialize_kafka_topics import KafKaTopics
 from src.api.dao.graph import graph,SubProcess,Subject,Machines,Process,Topic,DocumentChunks,Documents,Prompt
 from src.api.vo.file_upload_request import FileRequest
 from src.api.vo.finetune_request import FinetuneRequest
+from src.api.controller.llm import generate_top_k_results
+from src.api.vo.llm_request import LLMRequest, PretrainRequest
 from src.llm.model.sugriv import sugriv
 from src.utils.logger import logging as logger
 from src.utils.sematic_splitter import SemanticSplitter
-from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import JSONResponse
-from src.api.controller.llm import generate_top_k_results
-from src.api.vo.llm_request import LLMRequest, PretrainRequest
 from bin.create_data import create,write
 from bin.fine_tune import Finetuner
-from dotenv import load_dotenv
-from llama_index.embeddings.openai import OpenAIEmbedding
 
 # Load environment variables from .env file
 load_dotenv()
@@ -34,7 +36,7 @@ D_MODEL = int(os.getenv("D_MODEL"))
 
 sugriv = sugriv.get_model()
 
-# add the api 
+# add the api
 app = FastAPI()
 
 quadrant = QdrantDB()
@@ -47,7 +49,7 @@ KafKaTopics({'bootstrap.servers': KAFKA_SERVER})
 producer_conf = {'bootstrap.servers': KAFKA_SERVER,'client.id': socket.gethostname()}
 producer = confluent_kafka.Producer(producer_conf)
 
-if quadrant.check_collection_exists("prompts") != False:
+if quadrant.check_collection_exists("prompts") is not False:
     quadrant.create_collection("prompts")
 
 # create the nodes
@@ -61,15 +63,13 @@ Prompt = graph.create_node(Prompt)
 DocumentChunks = graph.create_node(DocumentChunks)
 
 # add data to nodes
-# todo: expose ability to create node using API
 subprocess = graph.add(SubProcess(name="material mixing and master batch",descripton="documents for material mixing"))
 machine  = graph.add(Machines(name="MODEL MP1202",type="flow tester", manufacturer="Tinius Olsen",descripton="flow tester/extrusion plastometer by Tinius Olsen"))
 process = graph.add(Process(name="gear manufacturing for part p-1290",descripton="documents for gear manufacturing",subprocess=subprocess,machine=machine))
 subject = graph.add(Subject(name="injection moulding",descripton="documents for injection moulding",process=process))
 topic = graph.add(Topic(name="manufacturing", description="documents for manufacturing processes",subject=subject))
 
-# get the nodes 
-# todo: get ability to get nodes using api 
+# get the nodes
 current_machine = Machines.nodes.get(name="MODEL MP1202")
 current_subprocess = SubProcess.nodes.get(name="material mixing and master batch")
 current_process = Process.nodes.get(name="gear manufacturing for part p-1290")
@@ -101,18 +101,19 @@ async def create_upload_file(file: UploadFile = File(...)):
             document.close()
         logger.info(f"loaded file {file.filename} to the server")
         return JSONResponse(content={"filename": file.filename},status_code=200)
-    except Exception as e:
+    except HTTPException as error:
         logger.error(f'can not load file {file.filename}')
-        logger.error(e)
+        logger.error(error)
+        return JSONResponse(content={"result": "error"},status_code=500)
 
 # create the index
 @app.post("/index")
 async def create_documents_graph(file:FileRequest):
     '''
-    process the document by semantic chunking and adding the data to 
+    process the document by semantic chunking and adding the data to
     the knowledge graph
         # 1. add the document prompts to vector database
-        # 2. add documents chunks to the graphS
+        # 2. add documents chunks to the graph
         # 3. connect the chunks to the document and document metadata
     '''
     try:
@@ -120,7 +121,7 @@ async def create_documents_graph(file:FileRequest):
         nodes = splitter.get_nodes([file.name])
 
         # add the document name as a node to the knowledge graph
-        logger.info(f"creating a node in the graph to store the file name")
+        logger.info("creating a node in the graph to store the file name")
         document  = graph.add(Documents(name=file.name,descripton=f"document for {file.name}"))
 
         # add the prompt as a node to the knowledge graph
@@ -155,20 +156,21 @@ async def create_documents_graph(file:FileRequest):
             document.chunks.connect(chunk)
 
         return JSONResponse(content={"filename": file.name},status_code=200)
-    except Exception as e:
+    except HTTPException as error:
         logger.error(f'can not index file {file.name}')
-        logger.error(e)
+        logger.error(error)
+        return JSONResponse(content={"result": "error"},status_code=500)
 
 # feed data to graph rag
 @app.post("/feed")
 async def feed(request:LLMRequest):
-    ''' gets the related documents for the given prompt and then 
+    ''' gets the related documents for the given prompt and then
         feeds them into the LLM'''
     try:
-        logger.info(f"getting documents for prompt")
+        logger.info("getting documents for prompt")
         # create the vector to retrieve similar prompts
         vector = embed_model.get_text_embedding(request.prompt)
-        
+
         logger.info("finding top-k similar prompt from the vector database")
         # find similar prompts in the vector database
         similar_prompts = quadrant.get("prompts",vector,top_k=1)
@@ -186,14 +188,14 @@ async def feed(request:LLMRequest):
             logger.info("getting the chunks that belong to the document")
             for chunk in document.chunks.order_by('data'):
                 uuid4 = uuid.uuid4()
-                
                 logger.info("publish the retrieved chunks belonging to the document to enrichment pipeline")
                 producer.produce(KAFKA_TOPICS, key=str(uuid4), value=json.dumps(chunk.to_json()))
 
         return JSONResponse(content={"result": "sent"},status_code=200)
-    except Exception as e:
+    except HTTPException as error:
         logger.error(f'can not index file {request.prompt}')
-        logger.error(e)
+        logger.error(error)
+        return JSONResponse(content={"result": "error"},status_code=500)
 
 # pretrain the LLM
 @app.post("/pretrain")
@@ -203,9 +205,10 @@ def pretrain(request:PretrainRequest):
         logger.info(request.text)
         sugriv.pretrain_text(request.text)
         return JSONResponse(content={"result": "success"},status_code=200)
-    except Exception as e:
+    except HTTPException as error:
         logger.error(f'can not pretrain LLM for text file {request.text}')
-        logger.error(e)
+        logger.error(error)
+        return JSONResponse(content={"result": "error"},status_code=500)
 
 @app.post("/create_dataset")
 async def create_finetuning_dataset(request:FinetuneRequest):
@@ -215,9 +218,10 @@ async def create_finetuning_dataset(request:FinetuneRequest):
         create(request.texts)
         write('data.json')
         return JSONResponse(content={"result": "success"},status_code=200)
-    except Exception as e:
+    except HTTPException as error:
         logger.error(f'can not finetune LLM for text {request.texts}')
-        logger.error(e)
+        logger.error(error)
+        return JSONResponse(content={"result": "error"},status_code=500)
 
 # apply top k
 @app.post("/search")
@@ -226,9 +230,10 @@ async def search(request:LLMRequest):
     try:
         logger.info('getting the top k completions')
         return generate_top_k_results(request)
-    except RuntimeError as e:
+    except HTTPException as error:
         logger.error('error getting top k completions')
-        logger.error(e)
+        logger.error(error)
+        return JSONResponse(content={"result": "error"},status_code=500)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
