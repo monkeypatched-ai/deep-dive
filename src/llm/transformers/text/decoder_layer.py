@@ -1,11 +1,17 @@
 import torch.nn as nn
-from src.llm.transformers.text.masked_multiheaded_attention import MaskedMultiHeadAttention
-from src.llm.transformers.text.positional_feed_forward_network import PositionwiseFeedForwardNetwork
+from src.llm.transformers.text.masked_multiheaded_attention import (
+    MaskedMultiHeadAttention,
+)
+from src.llm.transformers.text.positional_feed_forward_network import (
+    PositionwiseFeedForwardNetwork,
+)
+
 
 class DecoderLayer(nn.Module):
     """
     Transformer decoder layer.
     """
+
     def __init__(self, d_model=768, n_heads=1, ff_dim=4, dropout=0.1):
         """
         A single Transformer decoder layer made of masked self-attention and feed-forward.
@@ -35,7 +41,9 @@ class DecoderLayer(nn.Module):
                  attention weights = [batch_size, n_heads, seq_len, seq_len]
         """
         # decoder masked self-attention
-        output, attention_weights = self.masked_self_attention(input, input, input, mask)
+        output, attention_weights = self.masked_self_attention(
+            input, input, input, mask
+        )
         output = self.dropout_1(output)
 
         # residual connection and layer norm
@@ -47,6 +55,6 @@ class DecoderLayer(nn.Module):
 
         # residual connection and layer norm
         ffn_output = self.ffn_layer_norm(output + ffn_output)
-        
+
         # return output and attention weights
         return ffn_output, attention_weights

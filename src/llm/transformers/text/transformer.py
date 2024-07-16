@@ -5,12 +5,24 @@ import math
 from src.llm.transformers.text.decoder_layer import DecoderLayer
 from src.llm.transformers.text.positional_encoding import PositionalEncoding
 
+
 class Transformer(nn.Module):
     """
     Decoder-Only Transformer.
     """
-    def __init__(self, pad_index, vocab_size, d_model, max_seq_len, n_heads, n_layers, ff_dim, dropout_rate,batch_size):
 
+    def __init__(
+        self,
+        pad_index,
+        vocab_size,
+        d_model,
+        max_seq_len,
+        n_heads,
+        n_layers,
+        ff_dim,
+        dropout_rate,
+        batch_size,
+    ):
         """
         Initialize a Transformer decoder with N layers. Decoder self-attention layers are masked
         so that an attention head cannot attend to future words during training.
@@ -29,11 +41,16 @@ class Transformer(nn.Module):
         self.pad_index = pad_index
         self.d_model = d_model
         self.max_seq_len = max_seq_len
-        self.batch_size =  batch_size
+        self.batch_size = batch_size
         self.n_heads = n_heads
         self.vocab_size = vocab_size
         self.pos_enc = PositionalEncoding(d_model, max_seq_len)
-        self.layers = nn.ModuleList([DecoderLayer(d_model,n_heads,ff_dim,dropout_rate) for _ in range(n_layers)])
+        self.layers = nn.ModuleList(
+            [
+                DecoderLayer(d_model, n_heads, ff_dim, dropout_rate)
+                for _ in range(n_layers)
+            ]
+        )
         self.embedding = nn.Embedding(int(self.vocab_size), int(self.d_model))
         self.fc_linear = nn.Linear(int(self.d_model), int(self.vocab_size))
 
@@ -45,7 +62,7 @@ class Transformer(nn.Module):
         :return: Output = [batch_size, seq_len, vocab_size] and
                  attention = [batch_size, n_heads, seq_len, seq_len]
         """
-        
+
         # multiplication to reduce variance in the embeddings
         output = self.embedding(input.long()) * math.sqrt(self.d_model)
 
@@ -57,9 +74,9 @@ class Transformer(nn.Module):
 
         # subsequent_mask = [1, seq_len, seq_len]
         subsequent_mask = self.create_causal_mask(input).to(device=pad_mask.device)
-        
+
         # attention_mask = [batch_size, seq_len, seq_len]
-        attention_mask = pad_mask & subsequent_mask 
+        attention_mask = pad_mask & subsequent_mask
 
         # apply attention to positional encoded output at each layer
         for layer in self.layers:
@@ -71,7 +88,6 @@ class Transformer(nn.Module):
         # get the output and attention
         return output, attention
 
-
     def create_causal_mask(self, input):
         """
         Create a causal mask to prevent attending to future positions.
@@ -81,15 +97,14 @@ class Transformer(nn.Module):
                 where mask[i, j, k] is 1 if k <= j, and 0 otherwise.
         """
         # Create a boolean mask where True represents positions that should be masked
-         # Create a lower triangular matrix of shape (seq_length, seq_length)
+        # Create a lower triangular matrix of shape (seq_length, seq_length)
 
         size = input.size(-1)
-        
-        mask =  np.triu(np.ones((1, size, size)), k=1).astype('uint8')
 
-        return torch.from_numpy(mask)  == 0
+        mask = np.triu(np.ones((1, size, size)), k=1).astype("uint8")
 
-    
+        return torch.from_numpy(mask) == 0
+
     def padding_mask(self, input, pad_index):
         """
         Masks out padding so model doesn't attend to padding tokens.

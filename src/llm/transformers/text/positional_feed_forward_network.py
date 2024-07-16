@@ -1,11 +1,13 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class PositionwiseFeedForwardNetwork(nn.Module):
     """
     Position-wise Feed-Forward Network.
     Projects to ff_dim and then back to d_model.
     """
+
     def __init__(self, d_model, ff_dim, dropout=0.1):
         """
         Initializes position-wise feed-forward layer.

@@ -1,6 +1,7 @@
 from transformers import PretrainedConfig
 from typing import List
 
+
 class SugrivConfig(PretrainedConfig):
     model_type = "sugriv"
 
@@ -18,9 +19,13 @@ class SugrivConfig(PretrainedConfig):
         **kwargs,
     ):
         if block_type not in ["basic", "bottleneck"]:
-            raise ValueError(f"`block_type` must be 'basic' or bottleneck', got {block_type}.")
+            raise ValueError(
+                f"`block_type` must be 'basic' or bottleneck', got {block_type}."
+            )
         if stem_type not in ["", "deep", "deep-tiered"]:
-            raise ValueError(f"`stem_type` must be '', 'deep' or 'deep-tiered', got {stem_type}.")
+            raise ValueError(
+                f"`stem_type` must be '', 'deep' or 'deep-tiered', got {stem_type}."
+            )
 
         self.block_type = block_type
         self.layers = layers

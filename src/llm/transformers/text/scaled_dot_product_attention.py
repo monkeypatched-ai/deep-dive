@@ -3,11 +3,13 @@ import torch.nn as nn
 import math
 import torch.nn.functional as F
 
+
 class ScaledDotProductAttention(nn.Module):
     """
     Implements Scaled Dot-Product Attention.
     """
-    def __init__(self,  dropout=None):
+
+    def __init__(self, dropout=None):
         """
         :param d_k: Head dimension
         :param dropout: Dropout probability
@@ -18,7 +20,6 @@ class ScaledDotProductAttention(nn.Module):
             self.dropout = nn.Dropout(dropout)
 
     def forward(self, query, key, value, mask=None):
-
         """
         Computes Scaled Dot-Product Attention.
 
@@ -28,7 +29,7 @@ class ScaledDotProductAttention(nn.Module):
         :param mask: Mask = [batch_size, n_heads, seq_len, seq_len]
         :return: Output tensor and attention weights
         """
-        
+
         # Calculate scaled dot product attention scores
         scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(query.size(-1))
 
