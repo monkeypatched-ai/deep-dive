@@ -1,12 +1,12 @@
+""" wrapper around the vector database"""
+# pylint: disable=line-too-long,import-error,no-self-use,inconsistent-return-statements
+
 import os
-import numpy as np
+from dotenv import load_dotenv
 import requests
 from qdrant_client import QdrantClient, models
 from qdrant_client.models import Distance, VectorParams
 from src.utils.logger import logging as logger
-from dotenv import load_dotenv
-
-# from logger import logging as logger
 
 load_dotenv()
 
@@ -14,19 +14,19 @@ QDRANT_HOST = str(os.getenv("QDARANT_HOST"))
 QDRANT_PORT = str(os.getenv("QDARANT_PORT"))
 VECTOR_SIZE = int(os.getenv("D_MODEL"))
 
-
 class QdrantDB:
+    """ helper classes for qdrant vector database"""
 
     def __init__(self) -> None:
         """connects to the qdrant vector database"""
         try:
             logger.info(f"connecting to qdrant at {QDRANT_HOST} and port {QDRANT_PORT}")
             self.client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
-        except ConnectionError as e:
+        except ConnectionError as error:
             logger.error(
                 f"error connecting to quadrant db at {QDRANT_HOST} and {QDRANT_PORT}"
             )
-            logger.error(e)
+            logger.error(error)
 
     def create_collection(self, name):
         """create a collection in the vector database"""
@@ -37,9 +37,10 @@ class QdrantDB:
                 vectors_config=VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE),
             )
             return {"status": "ok"}
-        except RuntimeError as e:
-            logger.error(e)
+        except RuntimeError as error:
+            logger.error(error)
             logger.error(f"can not create collection with {name}")
+            return {"status": "error"}
 
     def get(self, name, vector, top_k=5):
         """get a result from the vector databse using the given query"""
@@ -50,11 +51,12 @@ class QdrantDB:
             )
             logger.info("successfully got results from collection")
             return {"status": "ok", "result": search_result[0].json()}
-        except RuntimeError as e:
+        except RuntimeError as error:
             logger.error(f"error executing query on collection {name}")
-            logger.error(e)
+            logger.error(error)
+            return {"status": "error"}
 
-    def add(self, id, payload, vector, name):
+    def add(self, point_id, payload, vector, name):
         """adds if the id does not exists or else uptates the existing
         recordd for the given collection"""
         try:
@@ -63,18 +65,19 @@ class QdrantDB:
                 collection_name=name,
                 points=[
                     models.PointStruct(
-                        id=id,
+                        id=point_id,
                         payload=payload,
                         vector=vector,
                     )
                 ],
             )
             logger.info("upsert successfull")
-        except RuntimeError as e:
+        except RuntimeError as error:
             logger.error(f"error upserting {str(payload)} into vector database")
-            logger.error(e)
+            logger.error(error)
 
     def check_collection_exists(self, collection_name):
+        """ checks if the given collection exists in the vector database"""
         try:
             logger.info("check if client exists")
             if collection_name == "prompts":
@@ -92,6 +95,7 @@ class QdrantDB:
                 if response.status_code == 404:
                     return False
                 return True
-        except RuntimeError as e:
-            logger.error(f"error checking if collection exists")
-            logger.error(e)
+        except RuntimeError as error:
+            logger.error("error checking if collection exists")
+            logger.error(error)
+            return {"status": "error"}

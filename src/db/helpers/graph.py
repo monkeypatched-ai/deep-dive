@@ -8,7 +8,6 @@ from neomodel import config, StructuredNode, RelationshipTo, RelationshipFrom
 from neomodel import db
 from src.utils.logger import logging as logger
 
-
 load_dotenv()
 
 URI = str(os.getenv("NEO4J_URL"))
