@@ -52,8 +52,8 @@ Pooja Gandhi, Software Engineer ML/AI
 
 We are thrilled that you are interested in contributing to our project! Your contributions, whether big or small, are valuable to us. Follow these steps to get started:
 
-1.  #### [Getting Started](https://dark-scorpio-023.notion.site/Getting-Started-45778b119c6d48eb83a65429c6a2c1ee)
-2.  #### [Small Language Models](https://dark-scorpio-023.notion.site/Small-Language-Models-60722bf1f0ee43508431818ca92db7dd)
+1. [Getting Started](https://dark-scorpio-023.notion.site/Getting-Started-45778b119c6d48eb83a65429c6a2c1ee)
+2. [Small Language Models](https://dark-scorpio-023.notion.site/Small-Language-Models-60722bf1f0ee43508431818ca92db7dd)
 3.  #### [GPT Architecture](https://dark-scorpio-023.notion.site/GPT-Architecture-b5240bf4df1e4097aada6fba3e335649)
 4.  #### [Retrieval Augmented Graphs](https://dark-scorpio-023.notion.site/Retrieval-Augmented-Generation-046c482147014652b77a5979493cee78)
 5.  #### [Pretaining and Finetuning](https://dark-scorpio-023.notion.site/Pretraining-and-Finetuning-fad69b1deaad49e688e6473c402c9502)
