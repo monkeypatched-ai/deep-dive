@@ -53,5 +53,5 @@ Pooja Gandhi, Software Engineer ML/AI
 We are thrilled that you are interested in contributing to our project! Your contributions, whether big or small, are valuable to us. Follow these steps to get started:
 
 *  #### [Getting Started](https://dark-scorpio-023.notion.site/Getting-Started-45778b119c6d48eb83a65429c6a2c1ee)
-*  ### [Small Language Models](https://www.notion.so/Getting-Started-45778b119c6d48eb83a65429c6a2c1ee)
+*  #### [Small Language Models](https://dark-scorpio-023.notion.site/Small-Language-Models-60722bf1f0ee43508431818ca92db7dd)
 # deep-dive
