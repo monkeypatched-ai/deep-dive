@@ -1,5 +1,5 @@
-import torch.nn as nn
-
+""" initialize the weights for the model """
+from torch import nn
 
 # should this be part of the model it self ?
 def initialize_weights(model):
