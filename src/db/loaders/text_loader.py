@@ -1,10 +1,11 @@
-# todo make custom dataset using data loader
-from datasets import load_dataset
-from src.llm.tokenizers.gpt_2_tokenizer import GPTTokenizer
-from torch.utils.data import DataLoader
+""" data loader for llm"""
+# pylint: disable=line-too-long,import-error,no-self-use,inconsistent-return-statements,no-name-in-module,import-self,no-member
+
 import json
 import os
 from dotenv import load_dotenv
+from torch.utils.data import DataLoader
+from src.llm.tokenizers.gpt_2_tokenizer import GPTTokenizer
 
 # Load environment variables from .env file
 load_dotenv()
@@ -12,6 +13,7 @@ load_dotenv()
 VECTOR_SIZE = int(os.getenv("D_MODEL"))
 
 class TextLoader:
+    """ helper for loading text data"""
 
     def __init__(self) -> None:
 
@@ -20,6 +22,7 @@ class TextLoader:
 
     # Tokenize the dataset
     def tokenize(self, examples):
+        """ this method is used to tokenize the input """
         tokenized_texts = []
         for example in examples:
             example = example.replace("'", '"')
