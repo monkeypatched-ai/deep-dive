@@ -1,3 +1,6 @@
+""" class to rotate an array """
+# pylint: disable=invalid-name
+
 def rotate_array(arr, k):
     """
     Rotate an array to the right by k positions.

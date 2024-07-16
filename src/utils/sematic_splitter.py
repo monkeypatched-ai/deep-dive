@@ -1,3 +1,6 @@
+""" semantic splitter splits documents based on context """
+# pylint: disable=too-few-public-methods
+
 from llama_index.core import SimpleDirectoryReader
 
 from llama_index.core.node_parser import (
@@ -8,7 +11,7 @@ from llama_index.embeddings.openai import OpenAIEmbedding
 
 
 class SemanticSplitter:
-
+    """ splits documents based on context """
     def __init__(self):
         # we will use the open ai embeddingand make the dimentions 1024
         self.embed_model = OpenAIEmbedding(
@@ -27,6 +30,7 @@ class SemanticSplitter:
         self.base_splitter = SentenceSplitter(chunk_size=512)
 
     def get_nodes(self, input_files):
+        """ set the list of nodes """
         # load documents
         documents = SimpleDirectoryReader(input_files=input_files).load_data()
         nodes = self.splitter.get_nodes_from_documents(documents)
