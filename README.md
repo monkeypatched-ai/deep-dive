@@ -52,12 +52,5 @@ Pooja Gandhi, Software Engineer ML/AI
 
 We are thrilled that you are interested in contributing to our project! Your contributions, whether big or small, are valuable to us. Follow these steps to get started:
 
-* Table of Contents
-* Getting Started
-* Reporting Issues
-* Submitting Code
-* Improving Documentation
-* Style Guides
-* Code of Conduct
-* [JIRA Board](https://monkeypatched.atlassian.net/jira/software/projects/ST/boards/3?atlOrigin=eyJpIjoiYzI2OGUwN2MwY2I2NDY2YjhhM2EyMGVlMTAzYzFhNWMiLCJwIjoiaiJ9)
+* [Getting Started](https://www.notion.so/Getting-Started-45778b119c6d48eb83a65429c6a2c1ee)
 # deep-dive
