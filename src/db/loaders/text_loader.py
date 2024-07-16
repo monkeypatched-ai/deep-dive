@@ -11,7 +11,6 @@ load_dotenv()
 
 VECTOR_SIZE = int(os.getenv("D_MODEL"))
 
-
 class TextLoader:
 
     def __init__(self) -> None:

@@ -1,12 +1,14 @@
+""" wrapper for redis"""
+# pylint: disable=line-too-long,import-error,no-self-use,inconsistent-return-statements,no-name-in-module,import-self
+
 import os
 import json
 from redis import Redis
-import numpy as np
-from dotenv import load_dotenv
 from redis.commands.search.query import Query
 from redis.commands.search.field import TagField, VectorField
 from redis.commands.search.indexDefinition import IndexDefinition, IndexType
-from redis.commands.search.query import Query
+import numpy as np
+from dotenv import load_dotenv
 from src.utils.logger import logging as logger
 from src.llm.embeddings.text_embeddings import TextEmbeddings
 
@@ -19,6 +21,7 @@ D_MODEL = int(os.getenv("D_MODEL"))
 
 
 class RedisDB:
+    """ wrapper for redis vector db"""
 
     def __init__(self) -> None:
         """the redis sdk creates a standard way to cache prompts and completions"""
@@ -27,9 +30,9 @@ class RedisDB:
             self.client = Redis.from_url(REDIS_URL)
             self.prompt_completion_index = self.create_index(D_MODEL)
             logger.info("inititating the redis pipeline")
-        except RuntimeError as e:
+        except RuntimeError as error:
             logger.error("can not cache the completion from the llm")
-            logger.error(e)
+            logger.error(error)
 
         self.pipe = self.client.pipeline()
         self.text_embedding_model = TextEmbeddings().embed_model
@@ -54,9 +57,9 @@ class RedisDB:
             self.pipe.hset(key, mapping=objects)
             res = self.pipe.execute()
             return res
-        except RuntimeError as e:
+        except RuntimeError as error:
             logger.error("can not put the completion from the llm ")
-            logger.error(e)
+            logger.error(error)
 
     def get_top_k(self, prompt, top_k):
         """
@@ -69,7 +72,7 @@ class RedisDB:
                 Query(
                     f"*=>[KNN {top_k} @prompt_embedding $vec]=>{{$yield_distance_as: dist}}"
                 )
-                .sort_by(f"dist")
+                .sort_by("dist")
                 .return_fields("prompt", "completion", "score", "dist")
                 .dialect(2)
             )
@@ -80,16 +83,17 @@ class RedisDB:
             }
             result = self.client.ft(INDEX_NAME).search(query, query_params)
             return result.docs
-        except RuntimeError as e:
+        except RuntimeError as error:
             logger.error("can not get k nearest from cache getting from llm")
-            logger.error(e)
+            logger.error(error)
 
     def create_index(self, vector_dimensions: int):
+        """ this function is used to create the index on redis dbs """
         logger.info(f"creating index {INDEX_NAME} in redis")
         try:
             self.client.ft(INDEX_NAME).info()
             logger.error("Index already exists!")
-        except:
+        except RuntimeError as error:
             schema = (
                 TagField("prompt"),
                 TagField("completion"),
@@ -110,4 +114,5 @@ class RedisDB:
                 fields=schema, definition=definition
             )
             logger.info(f"created index {INDEX_NAME} in redis")
+            logger.error(error)
             return index
