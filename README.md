@@ -39,15 +39,14 @@ Monkey mind provides a higher level of abstraction than the SDK enabling robot f
 
 ##### To Contribute send an email to below address
 
-project email: monkeypatched-iot@proton.me
-
 Prashun Javeri, CTO Monkeypatched
-
 Jatin Jadhav,  Software Engineer ML/AI 
-
 Pooja Gandhi, Software Engineer ML/AI
 
+# Setting up 
 
+1. [Setting up the code](https://dark-scorpio-023.notion.site/Setting-up-the-code-base-6173457377f645099938968829db5c10)
+    
 # How to Contribute
 
 We are thrilled that you are interested in contributing to our project! Your contributions, whether big or small, are valuable to us. Follow these steps to get started:
@@ -57,7 +56,11 @@ We are thrilled that you are interested in contributing to our project! Your con
 3. [GPT Architecture](https://dark-scorpio-023.notion.site/GPT-Architecture-b5240bf4df1e4097aada6fba3e335649)
 4. [Retrieval Augmented Graphs](https://dark-scorpio-023.notion.site/Retrieval-Augmented-Generation-046c482147014652b77a5979493cee78)
 5. [Pretaining and Finetuning](https://dark-scorpio-023.notion.site/Pretraining-and-Finetuning-fad69b1deaad49e688e6473c402c9502)
-6. [Knowledge-distillation](https://dark-scorpio-023.notion.site/Knowledge-Distillation-for-LLMs-0044a1c60d1a4f1e9c415ba7898b4bc2)
-7. [Prompt-engineering](https://dark-scorpio-023.notion.site/Prompt-engineering-d000c9fbc7684f23a7049600ddc28fb6)
+6. [Knowledge-Distillation](https://dark-scorpio-023.notion.site/Knowledge-Distillation-for-LLMs-0044a1c60d1a4f1e9c415ba7898b4bc2)
+7. [Prompt-Engineering](https://dark-scorpio-023.notion.site/Prompt-engineering-d000c9fbc7684f23a7049600ddc28fb6)
 8. [LLM Agents](https://dark-scorpio-023.notion.site/Agents-and-Function-calling-fb740ae8b847467c81bff150d7d4fd5d)
+9. [Inference and Evaluation](https://dark-scorpio-023.notion.site/Inference-and-Evaluation-c42e2957345b4ee1bc968ea1be35db00)
+10. [Branching Strategy](https://dark-scorpio-023.notion.site/Branching-Strategy-3bb172251ddf4c1e9b60645b51590518)
+    
+
   
