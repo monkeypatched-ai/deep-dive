@@ -58,7 +58,7 @@ We are thrilled that you are interested in contributing to our project! Your con
 5. [Pretaining and Finetuning](https://dark-scorpio-023.notion.site/Pretraining-and-Finetuning-fad69b1deaad49e688e6473c402c9502)
 6. [Knowledge-Distillation](https://dark-scorpio-023.notion.site/Knowledge-Distillation-for-LLMs-0044a1c60d1a4f1e9c415ba7898b4bc2)
 7. [Prompt-Engineering](https://dark-scorpio-023.notion.site/Prompt-engineering-d000c9fbc7684f23a7049600ddc28fb6)
-8. [LLM Agents](https://dark-scorpio-023.notion.site/Agents-and-Function-calling-fb740ae8b847467c81bff150d7d4fd5d)
+8. [LLM Agents and function calling](https://dark-scorpio-023.notion.site/Agents-and-Function-calling-fb740ae8b847467c81bff150d7d4fd5d)
 9. [Inference and Evaluation](https://dark-scorpio-023.notion.site/Inference-and-Evaluation-c42e2957345b4ee1bc968ea1be35db00)
 10. [Branching Strategy](https://dark-scorpio-023.notion.site/Branching-Strategy-3bb172251ddf4c1e9b60645b51590518)
     
