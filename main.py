@@ -40,8 +40,6 @@ app = FastAPI()
 
 quadrant = QdrantDB()
 
-finetuner = Finetuner()
-
 # kafka config
 KafKaTopics({'bootstrap.servers': KAFKA_SERVER})
 
