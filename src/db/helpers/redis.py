@@ -91,9 +91,6 @@ class RedisDB:
         """ this function is used to create the index on redis dbs """
         logger.info(f"creating index {INDEX_NAME} in redis")
         try:
-            self.client.ft(INDEX_NAME).info()
-            logger.error("Index already exists!")
-        except RuntimeError as error:
             schema = (
                 TagField("prompt"),
                 TagField("completion"),
@@ -108,11 +105,14 @@ class RedisDB:
                     },
                 ),
             )
-
             definition = IndexDefinition(prefix=[DOC_PREFIX], index_type=IndexType.HASH)
             index = self.client.ft(INDEX_NAME).create_index(
                 fields=schema, definition=definition
             )
             logger.info(f"created index {INDEX_NAME} in redis")
-            logger.error(error)
             return index
+        except RuntimeError as error:
+          self.client.ft(INDEX_NAME).info()
+          logger.error("Index already exists!")
+          logger.error(error)
+

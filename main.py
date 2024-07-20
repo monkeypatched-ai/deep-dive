@@ -22,7 +22,6 @@ from src.llm.model.sugriv import sugriv
 from src.utils.logger import logging as logger
 from src.utils.sematic_splitter import SemanticSplitter
 from bin.create_data import create,write
-from bin.fine_tune import Finetuner
 
 # Load environment variables from .env file
 load_dotenv()
