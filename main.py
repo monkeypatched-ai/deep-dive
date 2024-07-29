@@ -18,10 +18,12 @@ from src.api.vo.file_upload_request import FileRequest
 from src.api.vo.finetune_request import FinetuneRequest
 from src.api.controller.llm import generate_top_k_results
 from src.api.vo.llm_request import LLMRequest, PretrainRequest
+from src.api.vo.create_node_request import CreateNodeRequest
 from src.llm.model.sugriv import sugriv
 from src.utils.logger import logging as logger
 from src.utils.sematic_splitter import SemanticSplitter
 from bin.create_data import create,write
+from consts import node_mapping
 
 # Load environment variables from .env file
 load_dotenv()
@@ -231,6 +233,43 @@ async def search(request:LLMRequest):
         logger.error('error getting top k completions')
         logger.error(error)
         return JSONResponse(content={"result": "error"},status_code=500)
+
+
+# add node to the graph
+@app.post("/create_node")
+async def create_node(request: CreateNodeRequest):
+    """ create a node in the Database"""
+    try:
+        logger.info(f"Creating Node")
+
+        new_node_type = node_mapping[request.node_type]
+
+        graph.create_node(new_node_type)
+        new_node = graph.add(new_node_type(name=request.node_name, description=request.node_description))
+
+        if request.set_relationship:
+            current_node_type = node_mapping[request.current_node_type]
+            current_node = current_node_type.nodes.get(name=request.current_node_name)
+            if request.node_type == 'subject':
+                current_node.subject.connect(new_node)
+            elif request.node_type == 'process':
+                current_node.process.connect(new_node)
+            elif request.node_type == 'subprocess':
+                current_node.subprocess.connect(new_node)
+            elif request.node_type == 'documents':
+                current_node.document.connect(new_node)
+            elif request.node_type == 'machines':
+                current_node.machines.connect(new_node)
+            elif request.node_type == 'document_chunks':
+                current_node.document_chunks.connect(new_node)
+            else:
+                raise Exception("node type not acceptable")
+
+            return JSONResponse(content={"message": "node created"}, status_code=200)
+    except Exception as e:
+        logger.error(f'can not add node')
+        logger.error(e)
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
