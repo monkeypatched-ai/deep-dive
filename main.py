@@ -8,14 +8,22 @@ import socket
 import uvicorn
 import confluent_kafka
 from dotenv import load_dotenv
+from consts import node_mapping
+import requests
+from PIL import Image
+from io import BytesIO
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from llama_index.embeddings.openai import OpenAIEmbedding
+# from src.llm.ViT.vit_transformer import VitTransformer
+from src.llm.embeddings.image_embeddings import get_image_embedding
 from src.db.helpers.qdrant import QdrantDB
 from src.lib.initialize_kafka_topics import KafKaTopics
 from src.api.dao.graph import graph,SubProcess,Subject,Machines,Process,Topic,DocumentChunks,Documents,Prompt
+from src.api.dao.graph_images import Images,ImageURL
 from src.api.vo.file_upload_request import FileRequest
 from src.api.vo.finetune_request import FinetuneRequest
+from src.api.vo.image_upload_request import URLRequest
 from src.api.controller.llm import generate_top_k_results
 from src.api.vo.llm_request import LLMRequest, PretrainRequest
 from src.api.vo.create_node_request import CreateNodeRequest
@@ -23,7 +31,9 @@ from src.llm.model.sugriv import sugriv
 from src.utils.logger import logging as logger
 from src.utils.sematic_splitter import SemanticSplitter
 from bin.create_data import create,write
-from consts import node_mapping
+
+
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -60,6 +70,9 @@ Topic = graph.create_node(Topic)
 Documents = graph.create_node(Documents)
 Prompt = graph.create_node(Prompt)
 DocumentChunks = graph.create_node(DocumentChunks)
+#create image node
+Images = graph.create_node(Images)
+ImageURL = graph.create_node(ImageURL)
 
 # add data to nodes
 subprocess = graph.add(SubProcess(name="material mixing and master batch",descripton="documents for material mixing"))
@@ -159,6 +172,46 @@ async def create_documents_graph(file:FileRequest):
         logger.error(f'can not index file {file.name}')
         logger.error(error)
         return JSONResponse(content={"result": "error"},status_code=500)
+    
+#create post method for image
+@app.post("/upload_image")
+async def upload_image(url:URLRequest,desc:str):
+    '''
+    add an images node to the graph
+    add an image url node to the graph
+    connect the image url node to the images
+    '''
+    try:
+        #add the image to the qdrant
+        logger.info("fetching the image from the url")
+        response = requests.get(url.url)
+        response.raise_for_status()  # Check if the request was successful
+
+        # Convert the response content to an image
+        image = Image.open(BytesIO(response.content))
+
+        # get the image embeddings for the image
+        logger.info("creating embeddings for the image")
+        image_vector = get_image_embedding(image)
+
+        # add the image to vector db
+        quadrant.add({"name" : url.name,"description":desc}, image_vector,name="images")
+
+        # add the image as a node to the knowledge graph
+        logger.info(f"creating a node in the graph to store the image name")
+        images  = graph.add(Images(name=url.name,description=f"image for {url.name}"))
+
+        # add the ImageURL as a node to the knowledge graph
+        logger.info("creating a node in the graph to add the ImageUrl")
+        imageURL = graph.add(ImageURL(name=url.name,image_url=url.url,description=f"url for {url.name}"))
+
+        # connect document to the subprocess
+        imageURL.images.connect(images)
+
+        return JSONResponse(content={"image_name": url.name},status_code=200)
+    except Exception as e:
+        logger.error(f'cannot upload image {url.name}')
+        logger.error(e)
 
 # feed data to graph rag
 @app.post("/feed")
