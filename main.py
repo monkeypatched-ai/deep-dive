@@ -18,8 +18,8 @@ from consts import node_mapping
 from src.llm.embeddings.image_embeddings import get_image_embedding
 from src.db.helpers.qdrant import QdrantDB
 from src.lib.initialize_kafka_topics import KafKaTopics
-from src.api.dao.graph import graph,DocumentChunks,Documents,Prompt
-from src.api.dao.graph_images import Images,ImageURL
+from api.dao.documents import graph,DocumentChunks,Documents,Prompt
+from api.dao.images import Images,ImageURL
 from src.api.vo.file_upload_request import FileRequest
 from src.api.vo.finetune_request import FinetuneRequest
 from src.api.vo.image_upload_request import URLRequest
