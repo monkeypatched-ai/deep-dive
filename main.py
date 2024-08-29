@@ -15,7 +15,6 @@ from io import BytesIO
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from llama_index.embeddings.openai import OpenAIEmbedding
-# from src.llm.ViT.vit_transformer import VitTransformer
 from src.llm.embeddings.image_embeddings import get_image_embedding
 from src.db.helpers.qdrant import QdrantDB
 from src.lib.initialize_kafka_topics import KafKaTopics
