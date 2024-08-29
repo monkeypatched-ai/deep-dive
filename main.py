@@ -74,26 +74,6 @@ DocumentChunks = graph.create_node(DocumentChunks)
 Images = graph.create_node(Images)
 ImageURL = graph.create_node(ImageURL)
 
-# add data to nodes
-subprocess = graph.add(SubProcess(name="material mixing and master batch",descripton="documents for material mixing"))
-machine  = graph.add(Machines(name="MODEL MP1202",type="flow tester", manufacturer="Tinius Olsen",descripton="flow tester/extrusion plastometer by Tinius Olsen"))
-process = graph.add(Process(name="gear manufacturing for part p-1290",descripton="documents for gear manufacturing",subprocess=subprocess,machine=machine))
-subject = graph.add(Subject(name="injection moulding",descripton="documents for injection moulding",process=process))
-topic = graph.add(Topic(name="manufacturing", description="documents for manufacturing processes",subject=subject))
-
-# get the nodes
-current_machine = Machines.nodes.get(name="MODEL MP1202")
-current_subprocess = SubProcess.nodes.get(name="material mixing and master batch")
-current_process = Process.nodes.get(name="gear manufacturing for part p-1290")
-current_subject = Subject.nodes.get(name="injection moulding")
-current_topic = Topic.nodes.get(name="manufacturing")
-
-# create the relationship between nodes
-current_topic.subject.connect(current_subject)
-current_subject.process.connect(current_process)
-current_process.subprocess.connect(current_subprocess)
-current_process.machine.connect(current_machine)
-
 embed_model = OpenAIEmbedding(
             model="text-embedding-3-large",
             dimensions=D_MODEL
