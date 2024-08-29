@@ -1,4 +1,4 @@
-from registry import function_registry
+from src.agent.registry import function_registry
 
 def invoke(function_name, *args, **kwargs):
     if function_name in function_registry:

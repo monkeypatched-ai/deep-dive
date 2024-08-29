@@ -1,4 +1,4 @@
-from  task import TurnOnRobot,RunDiagnosticTests,InitializeSensors,InitializeActuators,SetInitialConfiguration,InitializeGraph
+from  tests.agent.tasks import TurnOnRobot,RunDiagnosticTests,InitializeSensors,InitializeActuators,SetInitialConfiguration,InitializeGraph
 
 function_registry = {
     "TurnOnRobot":TurnOnRobot,

@@ -1,5 +1,5 @@
-from invoker import invoke
-from parser import parse
+from src.agent.invoker import invoke
+from src.agent.parser import parse
 
 # Input initialization process
 # will need to pre train the teacher model to generate the below completion 
