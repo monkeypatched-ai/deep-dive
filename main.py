@@ -267,7 +267,7 @@ async def search(request:LLMRequest):
 # add node to the graph
 @app.post("/create_node")
 async def create_node(request: CreateNodeRequest):
-    """ create a node in the Database"""
+    """ create aan instance of the node and add it to graph"""
     try:
         logger.info("Creating Node")
         new_node_type = node_mapping[request.node_type]
