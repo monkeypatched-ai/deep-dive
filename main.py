@@ -5,20 +5,20 @@ import os
 import json
 import uuid
 import socket
+from io import BytesIO
 import uvicorn
 import confluent_kafka
 from dotenv import load_dotenv
-from consts import node_mapping
 import requests
 from PIL import Image
-from io import BytesIO
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from llama_index.embeddings.openai import OpenAIEmbedding
+from consts import node_mapping
 from src.llm.embeddings.image_embeddings import get_image_embedding
 from src.db.helpers.qdrant import QdrantDB
 from src.lib.initialize_kafka_topics import KafKaTopics
-from src.api.dao.graph import graph,SubProcess,Subject,Machines,Process,Topic,DocumentChunks,Documents,Prompt
+from src.api.dao.graph import graph,DocumentChunks,Documents,Prompt
 from src.api.dao.graph_images import Images,ImageURL
 from src.api.vo.file_upload_request import FileRequest
 from src.api.vo.finetune_request import FinetuneRequest
@@ -41,6 +41,8 @@ KAFKA_TOPICS= str(os.getenv("KAFKA_TOPICS"))
 MAXIMUM_SEQUENCE_LENGTH = int(os.getenv("MAXIMUM_SEQUENCE_LENGTH"))
 D_MODEL = int(os.getenv("D_MODEL"))
 
+NUMBER_OF_IMAGES = 0
+
 sugriv = sugriv.get_model()
 
 # add the api
@@ -57,18 +59,15 @@ producer = confluent_kafka.Producer(producer_conf)
 if quadrant.check_collection_exists("prompts") is not False:
     quadrant.create_collection("prompts")
 
-# create the nodes
-SubProcess = graph.create_node(SubProcess)
-Machines = graph.create_node(Machines)
-Process = graph.create_node(Process)
-Subject = graph.create_node(Subject)
-Topic = graph.create_node(Topic)
+#create document node
 Documents = graph.create_node(Documents)
 Prompt = graph.create_node(Prompt)
 DocumentChunks = graph.create_node(DocumentChunks)
+
 #create image node
 Images = graph.create_node(Images)
 ImageURL = graph.create_node(ImageURL)
+
 
 embed_model = OpenAIEmbedding(
             model="text-embedding-3-large",
@@ -120,9 +119,6 @@ async def create_documents_graph(file:FileRequest):
         # create connection from document to prompt and chunks
         prompt.document.connect(document)
 
-        # connect document to the subprocess
-        subprocess.document.connect(document)
-
         logger.info(f"processing the semantic chunks for the document {file.name}")
         # create and save the document chunks
         for i,node in enumerate(nodes):
@@ -132,6 +128,7 @@ async def create_documents_graph(file:FileRequest):
             prompt_vector = embed_model.get_text_embedding(file.prompt)
 
             logger.info(f"adding prompt {file.prompt} to vector index")
+
             # add the prompt to the vector database
             quadrant.add(i,{"name" : f"chunk {i}","prompt":str(file.prompt)}, prompt_vector,"prompts")
 
@@ -157,6 +154,7 @@ async def upload_image(url:URLRequest,desc:str):
     add an image url node to the graph
     connect the image url node to the images
     '''
+
     try:
         #add the image to the qdrant
         logger.info("fetching the image from the url")
@@ -170,22 +168,24 @@ async def upload_image(url:URLRequest,desc:str):
         logger.info("creating embeddings for the image")
         image_vector = get_image_embedding(image)
 
+        NUMBER_OF_IMAGES += 1
+
         # add the image to vector db
-        quadrant.add({"name" : url.name,"description":desc}, image_vector,name="images")
+        quadrant.add(NUMBER_OF_IMAGES,{"name" : url.name,"description":desc}, image_vector,name="images")
 
         # add the image as a node to the knowledge graph
-        logger.info(f"creating a node in the graph to store the image name")
+        logger.info("creating a node in the graph to store the image name")
         images  = graph.add(Images(name=url.name,description=f"image for {url.name}"))
 
         # add the ImageURL as a node to the knowledge graph
         logger.info("creating a node in the graph to add the ImageUrl")
-        imageURL = graph.add(ImageURL(name=url.name,image_url=url.url,description=f"url for {url.name}"))
+        image_url_node = graph.add(ImageURL(name=url.name,image_url=url.url,description=f"url for {url.name}"))
 
         # connect document to the subprocess
-        imageURL.images.connect(images)
+        image_url_node .images.connect(images)
 
         return JSONResponse(content={"image_name": url.name},status_code=200)
-    except Exception as e:
+    except HTTPException as e:
         logger.error(f'cannot upload image {url.name}')
         logger.error(e)
 
@@ -269,13 +269,13 @@ async def search(request:LLMRequest):
 async def create_node(request: CreateNodeRequest):
     """ create a node in the Database"""
     try:
-        logger.info(f"Creating Node")
+        logger.info("Creating Node")
         new_node_type = node_mapping[request.node_type]
         graph.create_node(new_node_type)
-        new_node = graph.add(new_node_type(name=request.node_name, description=request.node_description))
+        graph.add(new_node_type(name=request.node_name, description=request.node_description))
         return JSONResponse(content={"message": "node created"}, status_code=200)
-    except Exception as e:
-        logger.error(f'can not add node')
+    except HTTPException as e:
+        logger.error('can not add node')
         logger.error(e)
 
 if __name__ == "__main__":
