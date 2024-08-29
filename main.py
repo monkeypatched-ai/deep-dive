@@ -278,5 +278,7 @@ async def create_node(request: CreateNodeRequest):
         logger.error('can not add node')
         logger.error(e)
 
+# todo:add edge to the graph
+
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
