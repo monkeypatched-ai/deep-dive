@@ -2,9 +2,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from src.llm.ViT.vit_perceptron_block import VitPerceptronBlock
-from src.llm.ViT.vit_multiheaded_self_attention import VitMultiHeadSelfAttentionBlock
-from dotenv import load_dotenv
+from src.llm.transformers.image.perceptron_block import VitPerceptronBlock
+from src.llm.transformers.image.multiheaded_self_attention import VitMultiHeadSelfAttentionBlock
 import os
 
 ATTENTION_DROPOUT = int(os.getenv('ATTENTION_DROPOUT'))

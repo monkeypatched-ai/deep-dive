@@ -3,7 +3,7 @@ import torch
 from torch import nn
 import os
 from dotenv import load_dotenv
-from src.llm.ViT.vit_transformer import VitTransformer
+from src.llm.transformers.image.transformer import VitTransformer
 
 load_dotenv()
 

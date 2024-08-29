@@ -4,8 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from dotenv import load_dotenv
 import os
-from src.llm.ViT.vit_patch_embeddings import PatchEmbeddingLayer
-from src.llm.ViT.vit_encoder_layer import VitEncoder
+from  src.llm.transformers.image.patch_embeddings import PatchEmbeddingLayer
+from  src.llm.transformers.image.image_encoder import VitEncoder
 
 load_dotenv()
 
@@ -31,6 +31,7 @@ class VitTransformer(nn.Module):
                mlp_size = MLP_SIZE,
                num_heads = NUM_HEADS,
                num_classes = DEFAULT_NO_OF_CLASSES):
+    
     super().__init__()
 
     self.patch_embedding_layer = PatchEmbeddingLayer(in_channels = in_channels,
@@ -42,7 +43,6 @@ class VitTransformer(nn.Module):
                                               attn_dropout = attn_dropout,
                                               mlp_size = mlp_size,
                                               num_heads = num_heads) for _ in range(num_transformer_layers)])
-
 
   def forward(self, x):
     return self.transformer_encoder(self.patch_embedding_layer(x))[:, 0]
