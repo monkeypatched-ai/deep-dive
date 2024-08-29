@@ -182,7 +182,7 @@ async def upload_image(url:URLRequest,desc:str):
         image_url_node = graph.add(ImageURL(name=url.name,image_url=url.url,description=f"url for {url.name}"))
 
         # connect document to the subprocess
-        image_url_node .images.connect(images)
+        image_url_node.images.connect(images)
 
         return JSONResponse(content={"image_name": url.name},status_code=200)
     except HTTPException as e:
