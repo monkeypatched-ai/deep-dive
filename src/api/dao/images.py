@@ -1,6 +1,6 @@
 from neomodel import  StructuredNode, StringProperty,UniqueIdProperty
-from api.dao.documents import Documents
-from api.dao.documents import graph
+from src.api.dao.documents import Documents
+from src.api.dao.documents import graph
 
 class ImageURL(StructuredNode):
     uid = UniqueIdProperty()
