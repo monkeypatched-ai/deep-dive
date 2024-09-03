@@ -74,3 +74,26 @@ def determine_bg_color(im):
                 pix = rgb_im.getpixel((x, y))
                 all_colors.append(pix)
     return Counter(all_colors).most_common(1)[0][0]
+
+class Image_tile:
+  def __init__(self, tile_path, rows, cols):
+    self.tile_path = tile_path
+    self.rows = rows
+    self.cols = cols
+    self.a = []
+    self.name, self.ext = os.path.splitext(self.tile_path)
+
+  #assigns co-ordinates based on the name of the tile since we have a consistent way of assigning names to our tiles  
+  def assign_coord(self): 
+    for i in range(len(self.name)-1,-1,-1):
+      if self.name[i] == "_":
+        break
+      
+      else:
+        self.a.append(self.name[i])
+
+    num =  int("".join(self.a[::-1]))
+
+    coords = [num // self.cols, num % self.cols]
+    return coords
+    
